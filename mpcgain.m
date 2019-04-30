@@ -1,4 +1,4 @@
-function [Phi_Phi ,Phi_F,Phi_R,A_e,B_e,C_e] = mpcgain(Ap,Bp,Cp,Nc,Np);
+function [Phi_Phi ,Phi_F,Phi_R,A_e,B_e,C_e] = mpcgain(Ap,Bp,Cp,Nc,Np)
 [m1,n1] = size(Cp);
 [n1,n_in] = size(Bp);
 A_e = eye(n1+m1,n1+m1);
@@ -12,7 +12,7 @@ C_e(:,n1+1:n1+m1) = eye(m1,m1);
 % 由于F和Phi特殊的矩阵格式，利用该特点构造矩阵
 %先构造矩阵F
 n = n1+m1;
-h(1,:) = Ce;
+h(1,:) = C_e;
 F(1,:) = C_e*A_e;
 for kk = 2:Np
     h(kk,:) = h(kk-1,:)*A_e;
