@@ -1,0 +1,41 @@
+%% define the plant,enter the values of prediction horizon and control horizon
+%% Ap,Bp,Cp,Dp 是已经离散状态空间表达式的矩阵
+Ap = [1  1;0 1];
+Bp = [0.5;1];
+Cp = [1 0];
+Dp = 0;
+Np = 20; 
+Nc = 4;
+%% calls the function mpcgain.m to generate the necessary gain matrics and species the initial conditions for implementation of receding horizon control
+[Phi_Phi ,Phi_F,Phi_R,A_e,B_e,C_e] = mpcgain(Ap,Bp,Cp,Nc,Np)
+[n ,n_in] = size(B_e);
+xm = [0;0];
+Xf = zeros(n,1); % initial state feedback varaible
+N_sim = 100;
+r = ones(N_sim,1); % set-point
+u = 0;
+y = 0;
+%% From the receding control horizon control,the DeltaU is calculated using the set-point signal r(kk) and the state vector Xf;
+%% then deltau is the first element of DeltaU. The weight factor is selected as 0.1;
+for kk = 1:N_sim
+    DeltaU = inv(Phi_Phi+ 2*eye(Nc,Nc))*(Phi_R*r(kk)-Phi_F*Xf);
+    deltau = DeltaU(1,1);
+    u = u+deltau;
+    u1(kk) = u;
+    y1(kk) = y;
+    xm_old = xm;
+    xm = Ap*xm+Bp*u;
+    y = Cp*xm;
+    Xf = [xm-xm_old;y];
+end
+%% plot
+k = 0:(N_sim-1)
+figure
+subplot(211)
+plot(k,y1)
+xlabel('Sampling Instant')
+legend('Output')
+subplot(212)
+plot(k,u1)
+xlabel('Sampling Instant')
+legend('Control')
